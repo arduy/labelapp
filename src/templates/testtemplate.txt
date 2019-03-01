@@ -1,0 +1,6 @@
+[%NEWITEM%]
+A
+[[Description]],[[Qty]]
+[%NEWITEM%]
+B
+[[Description]],[[Qty]]
