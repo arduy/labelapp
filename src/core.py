@@ -24,18 +24,6 @@ class ItemReader:
                 items.append(new_item)
         return items
 
-def lightspeed_PO_settings():
-    mappings = {
-        'Item': 'Description',
-        'Retail Price': 'Price',
-    }
-    return {
-        'field_mappings': mappings,
-        'quantity_field': 'Order Qty.',
-        'barcode_fields': ['Custom SKU','System ID'],
-        'description': 'Lightspeed PO'
-    }
-
 class Template:
 
     field_pattern = r'\[\[(\w+)\]\]'

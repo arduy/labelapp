@@ -4,10 +4,13 @@ import re
 import core
 
 def basic_reader_settings():
+    mappings = {
+        'SKU': 'Barcode',
+    }
     return {
         'quantity_field': 'Qty',
         'description': 'Test Settings',
-        'barcode_fields': ['SKU','Alt SKU'],
+        'field_mappings': mappings
     }
 
 class BasicTests(unittest.TestCase):
@@ -26,7 +29,7 @@ class BasicTests(unittest.TestCase):
         regex2 = re.compile(r'\[%\w+%\]')
         matches = []
         matches2 = []
-        with open('templates/3wide label template.txt') as template:
+        with open('templates/3across.txt') as template:
             for line in template.readlines():
                 matches += regex.findall(line)
                 matches2 += regex2.findall(line)
@@ -45,13 +48,15 @@ class BasicTests(unittest.TestCase):
         settings = basic_reader_settings()
         settings['field_mappings'] = {
             'Description': 'Mapped Description',
-            'Price': 'Mapped Price'
+            'Price': 'Mapped Price',
+            'SKU': 'Barcode'
         }
         item_reader = core.ItemReader(settings)
         with open('testdata.csv') as csvfile:
             items = item_reader.read(csvfile)
             self.assertEqual(items[8]['Mapped Description'],'giant plant')
             self.assertEqual(items[3]['Mapped Price'],'12.99')
+            self.assertEqual(items[0]['Barcode'],'12345678')
 
 if __name__ == '__main__':
     unittest.main()
