@@ -1,6 +1,7 @@
 import core
 import os
 import argparse
+import configparser
 
 # Lightspeed PO settings
 lightspeed_settings = {
@@ -20,11 +21,15 @@ formats = {
 
 if __name__ == '__main__':
 
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument('data')
     parser.add_argument('--format')
     parser.add_argument('--template')
+    parser.add_argument('-np', '--noprint', action='store_true')
 
     args = parser.parse_args()
     if args.format in formats:
@@ -38,4 +43,5 @@ if __name__ == '__main__':
     output = template.fill(items)
     with open('output.txt','w') as file:
         file.write(output)
-    # os.system(r'RawPrint "\\OFFICEWWS5-PC\TEC B-SX4T" output.txt')
+    if not args.noprint:
+        os.system('RawPrint "{0}" output.txt'.format(config['Settings']['printer']))
