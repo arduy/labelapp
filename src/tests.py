@@ -29,7 +29,7 @@ class BasicTests(unittest.TestCase):
         regex2 = re.compile(r'\[%\w+%\]')
         matches = []
         matches2 = []
-        with open('templates/3across.txt') as template:
+        with open('templates/3acrossCode93.txt') as template:
             for line in template.readlines():
                 matches += regex.findall(line)
                 matches2 += regex2.findall(line)
