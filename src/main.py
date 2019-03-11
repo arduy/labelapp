@@ -14,8 +14,16 @@ lightspeed_settings = {
     'description': 'Lightspeed PO',
 }
 
+# default
+# intended for a user made spreadsheet
+default_settings = {
+    'quantity_field': 'Qty',
+    'description': 'Basic',
+}
+
 formats = {
-    'lightspeed': lightspeed_settings
+    'lightspeed': lightspeed_settings,
+    'default': default_settings,
 }
 
 
@@ -35,7 +43,8 @@ if __name__ == '__main__':
     if args.format in formats:
         itemreader = core.ItemReader(formats[args.format])
     else:
-        print('Select a file format')
+        itemreader = core.ItemReader(formats['default'])
+        print('Using default file format')
 
     with open(args.data) as data:
         items = itemreader.read(data)
