@@ -44,7 +44,6 @@ if __name__ == '__main__':
         itemreader = core.ItemReader(formats[args.format])
     else:
         itemreader = core.ItemReader(formats['default'])
-        print('Using default file format')
 
     with open(args.data) as data:
         items = itemreader.read(data)
@@ -53,4 +52,7 @@ if __name__ == '__main__':
     with open('output.txt','w') as file:
         file.write(output)
     if not args.noprint:
-        os.system('RawPrint "{0}" output.txt'.format(config['Settings']['printer']))
+        try:
+            os.system('RawPrint "{0}" output.txt'.format(config['Settings']['printer']))
+        except KeyError:
+            print('Error: Printer not found in settings file')
