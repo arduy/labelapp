@@ -25,16 +25,16 @@ class BasicTests(unittest.TestCase):
                 self.assertEqual(prices[i],row['Price'])
 
     def test_read_template(self):
-        regex = re.compile(r'\[\[\w+\]\]')
-        regex2 = re.compile(r'\[%\w+%\]')
-        matches = []
-        matches2 = []
-        with open('templates/3acrossCode93.txt') as template:
+        field_regex = re.compile(r'\[\[\w+\]\]')
+        cmd_regex = re.compile(r'\[%\w+%\]')
+        field_matches = []
+        cmd_matches = []
+        with open('templates/testtemplate.txt') as template:
             for line in template.readlines():
-                matches += regex.findall(line)
-                matches2 += regex2.findall(line)
-            self.assertEqual(len(matches),12)
-            self.assertEqual(len(matches2),3)
+                field_matches += field_regex.findall(line)
+                cmd_matches += cmd_regex.findall(line)
+            self.assertEqual(len(field_matches),4)
+            self.assertEqual(len(cmd_matches),2)
 
     def test_item_reader(self):
         item_reader = core.ItemReader(basic_reader_settings())
