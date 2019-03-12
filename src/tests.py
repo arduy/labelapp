@@ -3,14 +3,10 @@ import csv
 import re
 import core
 
-def basic_reader_settings():
-    mappings = {
-        'SKU': 'Barcode',
-    }
-    return {
+def reader_settings():
+    return  {
         'quantity_field': 'Qty',
         'description': 'Test Settings',
-        'field_mappings': mappings
     }
 
 class BasicTests(unittest.TestCase):
@@ -37,7 +33,7 @@ class BasicTests(unittest.TestCase):
             self.assertEqual(len(cmd_matches),2)
 
     def test_item_reader(self):
-        item_reader = core.ItemReader(basic_reader_settings())
+        item_reader = core.ItemReader(reader_settings())
         with open('testdata.csv') as csvfile:
             items = item_reader.read(csvfile)
             self.assertEqual(len(items),9)
@@ -45,18 +41,18 @@ class BasicTests(unittest.TestCase):
             self.assertEqual(items[3]['Price'],'12.99')
 
     def test_field_mappings(self):
-        settings = basic_reader_settings()
+        settings = reader_settings()
         settings['field_mappings'] = {
             'Description': 'Mapped Description',
             'Price': 'Mapped Price',
-            'SKU': 'Barcode'
+            'Barcode': 'Mapped Barcode'
         }
         item_reader = core.ItemReader(settings)
         with open('testdata.csv') as csvfile:
             items = item_reader.read(csvfile)
             self.assertEqual(items[8]['Mapped Description'],'giant plant')
             self.assertEqual(items[3]['Mapped Price'],'12.99')
-            self.assertEqual(items[0]['Barcode'],'12345678')
+            self.assertEqual(items[0]['Mapped Barcode'],'12345678')
 
 if __name__ == '__main__':
     unittest.main()
