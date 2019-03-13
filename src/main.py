@@ -2,6 +2,7 @@ import core
 import os
 import argparse
 import configparser
+import win32print
 
 # Lightspeed PO settings
 lightspeed_settings = {
@@ -29,8 +30,7 @@ formats = {
 
 if __name__ == '__main__':
 
-    config = configparser.ConfigParser()
-    config.read('config.ini')
+    mypath = os.path.dirname(os.path.realpath(__file__))
 
     parser = argparse.ArgumentParser()
 
@@ -40,6 +40,10 @@ if __name__ == '__main__':
     parser.add_argument('-np', '--noprint', action='store_true')
 
     args = parser.parse_args()
+
+    config = configparser.ConfigParser()
+    config.read(os.path.join(mypath,'config.ini'))
+
     if args.format in formats:
         itemreader = core.ItemReader(formats[args.format])
     else:
@@ -49,10 +53,15 @@ if __name__ == '__main__':
         items = itemreader.read(data)
     template = core.Template(args.template)
     output = template.fill(items)
-    with open('output.txt','w') as file:
-        file.write(output)
-    if not args.noprint:
+    data = bytes(output, 'utf-8')
+    myPrinter = win32print.OpenPrinter(config['Settings']['printer'])
+    try:
+        myJob = win32print.StartDocPrinter(myPrinter, 1, ("Labels", None, "RAW"))
         try:
-            os.system('RawPrint "{0}" output.txt'.format(config['Settings']['printer']))
-        except KeyError:
-            print('Error: Printer not found in settings file')
+            win32print.StartPagePrinter(myPrinter)
+            win32print.WritePrinter(myPrinter, data)
+            win32print.EndPagePrinter(myPrinter)
+        finally:
+            win32print.EndDocPrinter(myPrinter)
+    finally:
+        win32print.ClosePrinter(myPrinter)
