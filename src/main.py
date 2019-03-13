@@ -28,6 +28,14 @@ formats = {
 }
 
 
+def ask_yes_no(text):
+    choice = input(text)
+    if choice == 'y':
+        return True
+    else:
+        return False
+
+
 if __name__ == '__main__':
 
     mypath = os.path.dirname(os.path.realpath(__file__))
@@ -51,17 +59,22 @@ if __name__ == '__main__':
 
     with open(args.data) as data:
         items = itemreader.read(data)
-    template = core.Template(args.template)
-    output = template.fill(items)
-    data = bytes(output, 'utf-8')
-    myPrinter = win32print.OpenPrinter(config['Settings']['printer'])
-    try:
-        myJob = win32print.StartDocPrinter(myPrinter, 1, ("Labels", None, "RAW"))
-        try:
-            win32print.StartPagePrinter(myPrinter)
-            win32print.WritePrinter(myPrinter, data)
-            win32print.EndPagePrinter(myPrinter)
-        finally:
-            win32print.EndDocPrinter(myPrinter)
-    finally:
-        win32print.ClosePrinter(myPrinter)
+    if ask_yes_no('Would you like to print {0} labels? [y/n] '.format(len(items))):
+        template = core.Template(args.template)
+        output = template.fill(items)
+        if args.noprint:
+            with open(os.path.join(mypath, 'output.txt'), 'w') as file:
+                file.write(output)
+        else:
+            data = bytes(output, 'utf-8')
+            myPrinter = win32print.OpenPrinter(config['Settings']['printer'])
+            try:
+                myJob = win32print.StartDocPrinter(myPrinter, 1, ("Labels", None, "RAW"))
+                try:
+                    win32print.StartPagePrinter(myPrinter)
+                    win32print.WritePrinter(myPrinter, data)
+                    win32print.EndPagePrinter(myPrinter)
+                finally:
+                    win32print.EndDocPrinter(myPrinter)
+            finally:
+                win32print.ClosePrinter(myPrinter)
