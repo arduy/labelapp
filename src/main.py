@@ -19,7 +19,7 @@ lightspeed_settings = {
 # intended for a user made spreadsheet
 default_settings = {
     'quantity_field': 'Qty',
-    'description': 'Basic',
+    'description': 'Default',
 }
 
 formats = {
@@ -38,7 +38,7 @@ def ask_yes_no(text):
 
 if __name__ == '__main__':
 
-    mypath = os.path.dirname(os.path.realpath(__file__))
+    mypath = os.path.dirname(sys.executable)
 
     parser = argparse.ArgumentParser()
 
@@ -57,10 +57,16 @@ if __name__ == '__main__':
     else:
         itemreader = core.ItemReader(formats['default'])
 
+    template_file = os.path.join(mypath, config['Settings']['TemplateFolder'], args.template)
+    if not os.path.isfile(template_file):
+        print('Template {0} not found'.format(args.template))
+        sys.exit()
+
     with open(args.data) as data:
         items = itemreader.read(data)
+
     if ask_yes_no('Would you like to print {0} labels? [y/n] '.format(len(items))):
-        template = core.Template(args.template)
+        template = core.Template(template_file)
         output = template.fill(items)
         if args.noprint:
             with open(os.path.join(mypath, 'output.txt'), 'w') as file:
