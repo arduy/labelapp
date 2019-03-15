@@ -4,6 +4,7 @@ import re
 class ItemReader:
 
     def __init__(self,settings):
+        self.settings = settings
         self.quantity_field = settings['quantity_field']
         self.field_mappings = settings.get('field_mappings', dict())
 
@@ -16,6 +17,11 @@ class ItemReader:
                 quantity = int(row[self.quantity_field])
             except ValueError:
                 pass
+            except KeyError:
+                print("Error: Input data does not have a correctly named quantity column")
+                print('Input format: "{0}"'.format(self.settings['description']))
+                print('Quantity column name: "{0}"'.format(self.settings['quantity_field']))
+                return []
             for _ in range(quantity):
                 new_item = row.copy()
                 for key, value in self.field_mappings.items():
