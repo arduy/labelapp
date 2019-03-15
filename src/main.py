@@ -31,9 +31,10 @@ formats = {
 
 def ask_yes_no(text):
     choice = input(text)
-    if choice == 'y':
+    if choice.lower() in ['y', 'yes', 'y ']:
         return True
     else:
+        input('Cancelled print job, press any key to close app')
         return False
 
 
