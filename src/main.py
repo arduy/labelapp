@@ -1,4 +1,5 @@
 import core
+import sys
 import os
 import argparse
 import configparser
@@ -38,7 +39,7 @@ def ask_yes_no(text):
 
 if __name__ == '__main__':
 
-    mypath = os.path.dirname(sys.executable)
+    mypath = os.path.dirname(sys.argv[0])
 
     parser = argparse.ArgumentParser()
 
