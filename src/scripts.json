@@ -18,5 +18,10 @@
     "name": "Large Text No Barcode",
     "template": "nobarcode3across",
     "format": "default"
+  },
+  {
+    "name": "Lightspeed Sale 3across",
+    "template": "sale3across",
+    "format": "lightspeed"
   }
 ]
