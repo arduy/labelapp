@@ -13,5 +13,5 @@ if __name__ == '__main__':
             scriptname = '{0}.bat'.format(params['name'])
             with open(scriptname, 'w') as file:
                 file.write(
-                    '@echo off\n{0} --format={1} --template={2} "%~1"'
+                    '@echo off\n{0} --format={1} --template={2} "%~1"\npause'
                         .format(main, params['format'], params['template']))
