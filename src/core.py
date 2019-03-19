@@ -40,6 +40,7 @@ class Template:
         self.filename = filename
 
     def fill(self,items):
+        self.verify()
         output = ''
         items = items[:] # copy to leave original unaltered
         items.reverse() # work backwards for O(1) pops
@@ -72,6 +73,20 @@ class Template:
                     output += line
                 file.seek(0)
         return output
+
+    # For now, check that template has at least one [%NEWITEM%] tag
+    # Prevents infinite looping
+    def verify(self):
+        with open(self.filename) as file:
+            for line in file.readlines():
+                match = re.search(self.command_pattern, line)
+                if match:
+                    if match.group(1) == self.new_item_cmd:
+                        return True
+        raise TemplateError('Template is missing a [%NEWITEM%] command')
+
+class TemplateError(Exception):
+    pass
 
 def remove_double_brackets(string):
     string = re.sub(r'\[\[','',string)
