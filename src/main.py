@@ -64,7 +64,7 @@ if __name__ == '__main__':
         print('Template {0} not found'.format(args.template))
         sys.exit()
 
-    with open(args.data) as data:
+    with open(args.data, encoding='utf-8') as data:
         items = itemreader.read(data)
 
     if ask_yes_no('Would you like to print {0} labels? [y/n] '.format(len(items))):
