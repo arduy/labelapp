@@ -37,6 +37,16 @@ def ask_yes_no(text):
         print('Print job cancelled')
         return False
 
+def verify_barcodes(items):
+    for item in items:
+        barcode = item.get('Barcode','')
+        if not barcode.isdigit():
+            desc = item.get('Description','<no description>')
+            choice = input('Warning: Barcode irregularity detected for item "{0}"\nBarcode: "{1}"\nWould you like to continue anyway? [y/n]'.format(desc, barcode))
+            if not choice.lower() in ['y', 'yes', 'y ']:
+                return False
+    return True
+
 
 if __name__ == '__main__':
 
@@ -66,6 +76,10 @@ if __name__ == '__main__':
 
     with open(args.data, encoding='utf-8') as data:
         items = itemreader.read(data)
+
+    if not verify_barcodes(items):
+        print('Aborting')
+        sys.exit()
 
     if ask_yes_no('Would you like to print {0} labels? [y/n] '.format(len(items))):
         template = core.Template(template_file)
