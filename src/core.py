@@ -1,5 +1,7 @@
 import csv
 import re
+import json
+import os
 
 class ItemReader:
 
@@ -36,11 +38,27 @@ class Template:
     command_pattern = r'^\[%(\w+)%\]$'
     new_item_cmd = 'NEWITEM'
 
-    def __init__(self,filename):
+    def __init__(self,filename,meta_filename=None):
         self.filename = filename
+        self.meta_filename = meta_filename
 
     def fill(self,items):
         self.verify()
+        field_limits = {}
+        if self.meta_filename is not None:
+            try:
+                with open(self.meta_filename) as meta_file:
+                    meta_data = json.load(meta_file)
+                    name = os.path.basename(self.filename)
+                    data = None
+                    for val in meta_data:
+                        if val['name'].lower() == name.lower():
+                            data = val
+                            break
+                    if data is not None:
+                        field_limits = data['field_limits']
+            except Exception as e:
+                print('Error reading template metadata: {0}'.format(str(e)))
         output = ''
         items = items[:] # copy to leave original unaltered
         items.reverse() # work backwards for O(1) pops
@@ -64,6 +82,8 @@ class Template:
                         else:
                             try:
                                 field = remove_double_brackets(current_item[field_name])
+                                if field_name in field_limits:
+                                    field = truncate(field, field_limits[field_name])
                             except KeyError:
                                 field = ''
                         line = line[:match.start(0)] + field + line[match.end(0):]
@@ -92,3 +112,7 @@ def remove_double_brackets(string):
     string = re.sub(r'\[\[','',string)
     string = re.sub(r'\]\]','',string)
     return string
+
+def truncate(string, length):
+    if isinstance(length, int):
+        return string[:length]

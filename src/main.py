@@ -74,6 +74,11 @@ if __name__ == '__main__':
         print('Template {0} not found'.format(args.template))
         sys.exit()
 
+    metadata_file = os.path.join(mypath, config['Settings']['Templatefolder'], 'meta.json')
+    if not os.path.isfile(metadata_file):
+        print('Warning:  Template metadata not found.  Proceeding without.')
+        metadata_file = None
+
     with open(args.data, encoding='utf-8') as data:
         items = itemreader.read(data)
 
@@ -82,7 +87,7 @@ if __name__ == '__main__':
         sys.exit()
 
     if ask_yes_no('Would you like to print {0} labels? [y/n] '.format(len(items))):
-        template = core.Template(template_file)
+        template = core.Template(template_file, metadata_file)
         output = template.fill(items)
         if args.noprint:
             with open(os.path.join(mypath, 'output.txt'), 'w') as file:
