@@ -12,7 +12,7 @@ def reader_settings():
 class BasicTests(unittest.TestCase):
 
     def test_reader(self):
-        with open('testdata.csv') as csvfile:
+        with open('test/testdata.csv') as csvfile:
             reader = csv.DictReader(csvfile)
             names = ['small plant','big plant','giant plant']
             prices = ['3.99','12.99','39.99']
@@ -25,16 +25,16 @@ class BasicTests(unittest.TestCase):
         cmd_regex = re.compile(r'\[%\w+%\]')
         field_matches = []
         cmd_matches = []
-        with open('templates/testtemplate.txt') as template:
+        with open('test/testtemplate') as template:
             for line in template.readlines():
                 field_matches += field_regex.findall(line)
                 cmd_matches += cmd_regex.findall(line)
-            self.assertEqual(len(field_matches),4)
-            self.assertEqual(len(cmd_matches),2)
+            self.assertEqual(len(field_matches),1)
+            self.assertEqual(len(cmd_matches),1)
 
     def test_item_reader(self):
         item_reader = core.ItemReader(reader_settings())
-        with open('testdata.csv') as csvfile:
+        with open('test/testdata.csv') as csvfile:
             items = item_reader.read(csvfile)
             self.assertEqual(len(items),9)
             self.assertEqual(items[8]['Description'],'giant plant')
@@ -48,11 +48,42 @@ class BasicTests(unittest.TestCase):
             'Barcode': 'Mapped Barcode'
         }
         item_reader = core.ItemReader(settings)
-        with open('testdata.csv') as csvfile:
+        with open('test/testdata.csv') as csvfile:
             items = item_reader.read(csvfile)
             self.assertEqual(items[8]['Mapped Description'],'giant plant')
             self.assertEqual(items[3]['Mapped Price'],'12.99')
             self.assertEqual(items[0]['Mapped Barcode'],'12345678')
+
+    def test_meta_limits(self):
+        settings = reader_settings()
+        item_reader = core.ItemReader(settings)
+        with open('test/testdata.csv') as csvfile:
+            items = item_reader.read(csvfile)
+            template = core.Template('test/testtemplate','test/testmeta.json')
+            output = template.fill(items)
+            for line in output.splitlines():
+                self.assertEqual(len(line), 4) # field length limit in testmeta.json
+            self.assertEqual(len(output.splitlines()), 9)
+
+    def test_no_meta(self):
+        settings = reader_settings()
+        item_reader = core.ItemReader(settings)
+        with open('test/testdata.csv') as csvfile:
+            items = item_reader.read(csvfile)
+            template = core.Template('test/testtemplate2','test/testmeta.json')
+            output = template.fill(items)
+            for line in output.splitlines():
+                self.assertTrue(line in ['small plant', 'giant plant', 'big plant'])
+            self.assertEqual(len(output.splitlines()), 9)
+
+    def test_missing_quantity(self):
+        settings = reader_settings()
+        settings['quantity_field'] = 'no'
+        item_reader = core.ItemReader(settings)
+        with open('test/testdata.csv') as csvfile:
+            items = item_reader.read(csvfile)
+            self.assertEqual(len(items), 0)
+
 
 if __name__ == '__main__':
     unittest.main()

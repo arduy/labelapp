@@ -1,0 +1,10 @@
+[
+  {
+    "name": "testtemplate",
+    "field_limits": {
+      "Description": 4,
+      "Price": 2,
+      "Somename": 1
+    }
+  }
+]
