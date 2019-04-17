@@ -3,7 +3,8 @@
     "name": "standard2across",
     "field_limits": {
       "Description": 19,
-      "Extra": 19
+      "Extra": 19,
+	  "Size": 10,
     }
   }
 ]
