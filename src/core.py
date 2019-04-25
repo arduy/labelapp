@@ -42,6 +42,57 @@ class Template:
         self.filename = filename
         self.meta_filename = meta_filename
 
+    def autosplit(self,items):
+        try:
+            with open(self.meta_filename) as meta_file:
+                meta_data = json.load(meta_file)
+                name = os.path.basename(self.filename)
+                data = None
+                for val in meta_data:
+                    if val['name'].lower() == name.lower():
+                        data = val
+                        break
+                if data is not None:
+                    split_params = data.get('autosplit')
+                else:
+                    split_params = None
+        except Exception as e:
+            print('Error reading template metadata: {0}'.format(str(e)))
+            return items
+        if split_params is not None:
+            new_items = []
+            if split_params.get('mode') == 'simple':
+                src_name = split_params['field']
+                target_name = split_params['target']
+                src_limit = split_params['limits'][src_name]
+                target_limit = split_params['limits'][target_name]
+                for item in items:
+                    new_item = item.copy()
+                    if len(new_item[src_name]) > src_limit:
+                        source = new_item[src_name].split(' ')
+                        new_target = ''
+                        new_source = ''
+                        length = 0
+                        # make target as long as possible
+                        # put rest in source
+                        source.reverse()
+                        for i, word in enumerate(source):
+                            if i > 0:
+                                word = word+' '
+                            length += len(word)
+                            if length <= target_limit:
+                                new_target = word + new_target
+                            else:
+                                new_source = word + new_source
+                        new_item[src_name] = new_source
+                        new_item[target_name] = new_target
+                    new_items.append(new_item)
+                return new_items
+            else:
+                return items
+        else:
+            return items
+
     def fill(self,items):
         self.verify()
         field_limits = {}
@@ -56,7 +107,7 @@ class Template:
                             data = val
                             break
                     if data is not None:
-                        field_limits = data['field_limits']
+                        field_limits = data.get('field_limits', {})
             except Exception as e:
                 print('Error reading template metadata: {0}'.format(str(e)))
         output = ''

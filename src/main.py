@@ -57,6 +57,7 @@ if __name__ == '__main__':
     parser.add_argument('data')
     parser.add_argument('--format')
     parser.add_argument('--template')
+    parser.add_argument('-as', '--autosplit', action='store_true')
     parser.add_argument('-np', '--noprint', action='store_true')
 
     args = parser.parse_args()
@@ -88,6 +89,8 @@ if __name__ == '__main__':
 
     if ask_yes_no('Would you like to print {0} labels? [y/n] '.format(len(items))):
         template = core.Template(template_file, metadata_file)
+        if args.autosplit:
+            items = template.autosplit(items)
         output = template.fill(items)
         if args.noprint:
             with open(os.path.join(mypath, 'output.txt'), 'w') as file:
