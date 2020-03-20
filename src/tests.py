@@ -40,6 +40,13 @@ class BasicTests(unittest.TestCase):
             self.assertEqual(items[8]['Description'],'giant plant')
             self.assertEqual(items[3]['Price'],'12.99')
 
+    def test_quantity_error(self):
+        item_reader = core.ItemReader(reader_settings())
+        with open('test/noquantity.csv') as csvfile:
+            with self.assertRaises(core.QuantityError) as cm:
+                item_reader.read(csvfile)
+            self.assertEqual(cm.exception.quantity_field, item_reader.quantity_field)
+
     def test_field_mappings(self):
         settings = reader_settings()
         settings['field_mappings'] = {
@@ -76,13 +83,14 @@ class BasicTests(unittest.TestCase):
                 self.assertTrue(line in ['small plant', 'giant plant', 'big plant'])
             self.assertEqual(len(output.splitlines()), 9)
 
-    def test_missing_quantity(self):
+    def test_meta_error(self):
         settings = reader_settings()
-        settings['quantity_field'] = 'no'
         item_reader = core.ItemReader(settings)
         with open('test/testdata.csv') as csvfile:
             items = item_reader.read(csvfile)
-            self.assertEqual(len(items), 0)
+            template = core.Template('test/testtemplate2','test/badmeta.json')
+            with self.assertRaises(core.MetadataError):
+                output = template.fill(items)
 
 
 if __name__ == '__main__':

@@ -20,10 +20,10 @@ class ItemReader:
             except ValueError:
                 pass
             except KeyError:
-                print("Error: Input data does not have a correctly named quantity column")
-                print('Input format: "{0}"'.format(self.settings['description']))
-                print('Quantity column name: "{0}"'.format(self.settings['quantity_field']))
-                return []
+                raise QuantityError(
+                    message = "Error: Input data does not have a correctly named quantity column",
+                    quantity_field = self.settings['quantity_field']
+                )
             for _ in range(quantity):
                 new_item = row.copy()
                 for key, value in self.field_mappings.items():
@@ -31,6 +31,11 @@ class ItemReader:
                         new_item[value] = row[key]
                 items.append(new_item)
         return items
+
+class QuantityError(Exception):
+    def __init__(self, message, quantity_field):
+        super().__init__(message)
+        self.quantity_field = quantity_field
 
 class Template:
 
@@ -58,7 +63,7 @@ class Template:
                     if data is not None:
                         field_limits = data['field_limits']
             except Exception as e:
-                print('Error reading template metadata: {0}'.format(str(e)))
+                raise MetadataError('Error reading template metadata: {0}'.format(str(e)))
         output = ''
         items = items[:] # copy to leave original unaltered
         items.reverse() # work backwards for O(1) pops
@@ -104,6 +109,9 @@ class Template:
                     if match.group(1) == self.new_item_cmd:
                         return True
         raise TemplateError('Template is missing a [%NEWITEM%] command')
+
+class MetadataError(Exception):
+    pass
 
 class TemplateError(Exception):
     pass
